@@ -1,0 +1,29 @@
+@import "Fonts/Ubuntu";
+
+@import "Form/Buttons";
+@import "Form/Inputs";
+
+@import "Pages/Login";
+
+body {
+    margin: 0;
+
+    font-family: "Ubuntu", Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-weight: normal;
+
+    color: #7ecaee;
+
+    background: #15507c linear-gradient(135deg, #15507c, #0c3a65) no-repeat fixed;
+
+    overflow: overlay;
+}
+
+a {
+    color: #fff;
+
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

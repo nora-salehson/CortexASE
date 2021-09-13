@@ -20,20 +20,22 @@ namespace Cortex.ASE {
     class Program {
         public static string Database;
 
+        public static JObject Config;
+
         static void Main(string[] args) {
             string directory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
             JObject manifest = JObject.Parse(File.ReadAllText(Path.Combine(directory, "Cortex.ASE.json")));
 
-            JObject config = JObject.Parse(File.ReadAllText((string)manifest["configuration"]));
+            Config = JObject.Parse(File.ReadAllText((string)manifest["configuration"]));
 
 
-            Database = $"server={config["mysql"]["host"]};uid={config["mysql"]["credentials"]["name"]};pwd={config["mysql"]["credentials"]["password"]};database={config["mysql"]["database"]};SslMode={config["mysql"]["sslmode"]}";
+            Database = $"server={Config["mysql"]["host"]};uid={Config["mysql"]["credentials"]["name"]};pwd={Config["mysql"]["credentials"]["password"]};database={Config["mysql"]["database"]};SslMode={Config["mysql"]["sslmode"]}";
 
 
             using HttpListener listener = new HttpListener();
 
-            foreach(JToken prefix in config["ase"]["prefixes"])
+            foreach(JToken prefix in Config["ase"]["prefixes"])
                 listener.Prefixes.Add((string)prefix);
 
             // netsh http add urlacl url=http://ase.local.cortex5.io:80/ user=caket
@@ -56,7 +58,7 @@ namespace Cortex.ASE {
                         RequestClient client = new RequestClient(context);
 
                         if(client.Request.LastIndexOf('.') != -1) {
-                            string path = Path.Combine(new string[] { (string)config["ase"]["directories"]["www"], "public", client.Request.Trim('/') });
+                            string path = Path.Combine(new string[] { (string)Config["ase"]["directories"]["www"], "public", client.Request.Trim('/') });
 
                             if(File.Exists(path)) {
                                 response.StatusCode = (int)HttpStatusCode.OK;
@@ -64,7 +66,7 @@ namespace Cortex.ASE {
                                 response.ContentEncoding = Encoding.UTF8;
 
                                 using(FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
-                                    response.AddHeader("Content-Length", stream.Length.ToString());
+                                    response.AddHeader("content-length", stream.Length.ToString());
 
                                     stream.CopyTo(response.OutputStream);
                                 }
@@ -76,7 +78,7 @@ namespace Cortex.ASE {
                         else if(client.Request.Length == 1) {
                             response.StatusCode = (int)HttpStatusCode.Redirect;
 
-                            response.Redirect((client.Guest)?("/index"):("/home"));
+                            response.Redirect((client.Guest)?("/login"):("/home"));
                         }
                         else {
                             string methodName = context.Request.Url.Segments[1].Replace("/", "");

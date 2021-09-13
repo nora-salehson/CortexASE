@@ -6,17 +6,10 @@ using System.Net;
 using System.Net.Http;
 
 namespace Cortex.ASE.Requests {
-    [RequestPageMap("index")]
+    [RequestPageMap("login")]
     class Index : IRequestPage {
         public void Respond(RequestClient client) {
-            byte[] data = Encoding.UTF8.GetBytes("hello world");
-
-            client.Context.Response.StatusCode = (int)HttpStatusCode.OK;
-            client.Context.Response.ContentType = "text/html";
-            client.Context.Response.ContentEncoding = Encoding.UTF8;
-            client.Context.Response.ContentLength64 = data.LongLength;
-
-            client.Context.Response.OutputStream.Write(data, 0, data.Length);
+            RequestManager.Respond(client, RequestManager.GetClientPage(client, "login.html"));
         }
         
         public void Respond(RequestClient client, string test) {
